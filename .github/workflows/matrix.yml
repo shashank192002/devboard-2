@@ -29,6 +29,6 @@ jobs:
         working-directory: backend
 
 
-      - name: Run go Linter 
-        run: go lint
+      - name: Run go Formatter 
+        run: go fmt
         working-directory: backend       
