@@ -9,10 +9,10 @@ on:
     paths:
       - '**'
       - '!.github/workflows/**'
-    branches: [advanced]
+    branches: [feat/matrix-docker-build]
 
 jobs:
-  frontend:
+  lint-frontend:
       runs-on: ubuntu-latest
       steps:
         - name: Checkout code
@@ -37,6 +37,18 @@ jobs:
           run: npm test
           working-directory: frontend
 
+
+
+  build-and-push:
+    needs: [lint-frontend, lint-backend]
+    runs-on: ubuntu-latest
+    strategy:
+       matrix:
+        folder: [frontend, backend]
+    steps:
+        - name: Checkout code
+          uses: actions/checkout@v7  
+
         - name: Docker Login
           uses: docker/login-action@v4
           with:
@@ -45,12 +57,12 @@ jobs:
         - name: Build and Push 
           uses: docker/build-push-action@v7
           with:
-            context: ./frontend
+            context: ./${{ matrix.folder }}
             push: true
-            tags: ${{ vars.DOCKERHUB_USERNAME }}/devboard-frontend:latest
+            tags: ${{ vars.DOCKERHUB_USERNAME }}/devboard-${{ matrix.folder }}:latest        
 
 
-  backend:
+  lint-backend:
       runs-on: ubuntu-latest
       steps:
         - name: Checkout code
@@ -77,24 +89,13 @@ jobs:
           run: go test 
           working-directory: backend
 
-        - name: Docker Login
-          uses: docker/login-action@v4
-          with:
-            username: ${{ vars.DOCKERHUB_USERNAME }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
-        - name: Build and Push 
-          uses: docker/build-push-action@v7
-          with:
-            context: ./backend
-            push: true
-            tags: ${{ vars.DOCKERHUB_USERNAME }}/devboard-backend:latest
-
 
 
   deploy:
-      needs: [frontend, backend]
+      needs: [lint-frontend, lint-backend, build-and-push]
       uses: ./.github/workflows/cd.yml  
       secrets: inherit      
+
 
         
 
