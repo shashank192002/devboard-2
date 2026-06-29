@@ -5,7 +5,8 @@ name: CD
 on:
   workflow_run:
     workflows: ["CI"]
-    types: [completed]
+    types:
+      - completed
     branches: [advanced]
 
 
