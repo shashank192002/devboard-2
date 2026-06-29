@@ -7,9 +7,6 @@ name: CI
 on:
   push:
     branches: [advanced]
-    paths:
-      - 'frontend/**'
-      - 'backend/**'
 
 jobs:
 
