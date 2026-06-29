@@ -1,0 +1,34 @@
+#Goal : Install multiple version of go and do linting for multiple version of go and then build and test the code for backend and push the image to dockerhub
+
+
+name: Go Linter
+
+on:
+  workflow_dispatch:
+
+jobs:
+  code-format:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version: [1.23, 1.22, 1.21]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v6
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache-dependency-path: backend/go.sum
+          go-version-file: backend/go.mod
+
+      - name: Run Vet for Go ${{ matrix.go-version }}
+        run: go vet ./...
+        working-directory: backend
+
+
+      - name: Run go Linter 
+        run: go lint
+        working-directory: backend       
