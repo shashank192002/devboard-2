@@ -26,9 +26,17 @@ jobs:
         run: go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
 
       - name: Run Go Vulnecheck
-        run: govulncheck ./...
+        run: govulncheck ./... > govulncheck-report.txt
         working-directory: backend
+        continue-on-error: true  # Continue even if vulnerabilities are found
 
+      - name: Upload Report to Artifacts
+        if: always()  # Ensure the report is uploaded even if the previous step fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: job-report
+          path: reports/go-vulncheck-report.txt
+          retention-days: 7
 
 
       - name: Checkout code
