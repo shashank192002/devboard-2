@@ -19,5 +19,5 @@ jobs:
 
 
   dependency-scanning:
-    uses: ./.github/workflows/dependency-scanning.yml
+    uses: ./.github/workflows/dependency-scan.yml
 
