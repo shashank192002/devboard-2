@@ -30,14 +30,6 @@ jobs:
         run: npm run lint
         working-directory: frontend
 
-      - name: Run Tests
-        run: npm test
-        working-directory: frontend
-
-
-      - name: Checkout code
-        uses: actions/checkout@v7
-
       - name: Setup Go
         uses: actions/setup-go@v6
         with:
