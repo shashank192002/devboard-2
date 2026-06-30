@@ -1,0 +1,16 @@
+#Goal To tun the end to end DevSecOps CI/CD pipeline
+
+name: DevSecOps
+
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+
+  #Code stage with Shift Left
+  code-quality:
+    uses: ./.github/workflows/code-quality.yml
+
+
