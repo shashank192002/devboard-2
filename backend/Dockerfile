@@ -16,7 +16,7 @@ FROM dhi.io/golang:1-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app/devboard-backend /devboard-backend
+COPY --from=builder /app/devboard-backend ./devboard-backend
 
 RUN chmod +x ./devboard-backend
 
