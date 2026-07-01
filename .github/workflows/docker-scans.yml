@@ -24,5 +24,16 @@ jobs:
           dockerfile: ${{ matrix.folders }}/Dockerfile
 
 
-  # dockerimagescanning:
-  #   needs: [dockerfile-linting]
+      - name: Docker Setup Login
+        uses: docker/login-action@v4
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker Build ${{ matrix.folders }} Image
+        run: docker build -t ${{ vars.DOCKERHUB_USERNAME }}/devboard-${{ matrix.folders }}:latest .
+        working-directory: ${{ matrix.folders }}
+
+
+  dockerimagescanning:
+    needs: [dockerfile-linting]
