@@ -11,8 +11,7 @@ FROM dhi.io/node:24-alpine
 WORKDIR /app
 
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
-
+RUN addgroup -g 1001 nodejs && adduser -D -S -u 1001 -G nodejs nodejs
 # Copy only dist and config, install vite from npm install (not global)
 COPY --from=build --chown=nodejs:nodejs /app/dist ./dist
 COPY --chown=nodejs:nodejs package*.json ./
