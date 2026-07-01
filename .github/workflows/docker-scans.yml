@@ -11,6 +11,7 @@ jobs:
 
   dockerfile-linting:
     strategy:
+      fail-fast: false
       matrix:
         folders: [ "backend", "frontend" ]
     runs-on: ubuntu-latest
