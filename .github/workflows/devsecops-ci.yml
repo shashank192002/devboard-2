@@ -24,4 +24,5 @@ jobs:
 
   docker-scanning:
     uses: ./.github/workflows/docker-scans.yml
+    inherits: true
 
