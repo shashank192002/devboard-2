@@ -1,5 +1,6 @@
 # Stage 1 — build the app into static files
 FROM dhi.io/node:24-alpine AS build
+SHELL ["/bin/ash", "-c"]
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --legacy-peer-deps
@@ -8,10 +9,12 @@ RUN npm run build
 
 # Stage 2 — small image that only serves the build
 FROM dhi.io/node:24-alpine
+SHELL ["/bin/ash", "-c"]
 WORKDIR /app
 
 # Create non-root user
 RUN addgroup -g 1001 nodejs && adduser -D -S -u 1001 -G nodejs nodejs
+
 # Copy only dist and config, install vite from npm install (not global)
 COPY --from=build --chown=nodejs:nodejs /app/dist ./dist
 COPY --chown=nodejs:nodejs package*.json ./
