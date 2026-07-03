@@ -1,5 +1,5 @@
 # Stage 1 — build the app into static files
-FROM node:20-alpine AS build
+FROM dhi.io/node:22-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --legacy-peer-deps
@@ -7,7 +7,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2 — small image that only serves the build (no nginx)
-FROM node:20-alpine
+FROM dhi.io/node:22-alpine
 WORKDIR /app
 RUN npm install -g vite@5 && npm cache clean --force
 
@@ -24,3 +24,4 @@ USER nodejs
 
 EXPOSE 4173
 CMD ["vite", "preview", "--host", "0.0.0.0", "--port", "4173"]
+
