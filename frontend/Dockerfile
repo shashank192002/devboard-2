@@ -1,34 +1,28 @@
-# Stage 1 — build the app
-FROM dhi.io/node:26-dev AS build
 
+# Stage 1 — build the app into static files
+FROM dhi.io/node:22-debian AS build
 WORKDIR /app
-
 COPY package*.json ./
-
-RUN npm install --legacy-peer-deps
-
-# Install vite explicitly if not already in package.json
-RUN npm list vite > /dev/null 2>&1 || npm install --no-save vite@5.4.11
-
+RUN npm ci --legacy-peer-deps
 COPY . .
-
 RUN npm run build
 
-# Stage 2 — distroless runtime (minimal, secure)
-FROM dhi.io/node:26
-
+# Stage 2 — small image that only serves the build (no nginx)
+FROM dhi.io/node:22-debian
 WORKDIR /app
+RUN npm install -g vite@5 && npm cache clean --force
 
-# Copy built files from builder
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+
 COPY --from=build /app/dist ./dist
-
-# Copy all node_modules from builder (includes vite)
-COPY --from=build /app/node_modules ./node_modules
-
 COPY vite.preview.config.js ./vite.config.js
 
-EXPOSE 4173
+# Set ownership to non-root user
+RUN chown -R nodejs:nodejs /app
 
-# Use exec form for proper signal handling
-ENTRYPOINT ["node", "--no-warnings"]
-CMD ["./node_modules/.bin/vite", "preview", "--host", "0.0.0.0", "--port", "4173"]
+USER nodejs
+
+EXPOSE 4173
+CMD ["vite", "preview", "--host", "0.0.0.0", "--port", "4173"]
+
