@@ -1,4 +1,4 @@
-FROM dhi.io/node:26-debian AS build
+FROM dhi.io/node:26-dev AS build
 
 WORKDIR /app
 
@@ -6,34 +6,31 @@ COPY package*.json ./
 
 RUN npm install --legacy-peer-deps
 
-# Install vite explicitly if not already in package.json
-RUN npm list vite > /dev/null 2>&1 || npm install --no-save vite@5.4.11
-
 COPY . .
 
 RUN npm run build
 
-# Prune to production-only dependencies before copying node_modules into the
-# runtime stage (vite itself is only needed here if you run `vite preview`
-# in prod — see stage 2 note below).
 
-# Stage 2 — distroless runtime (minimal, secure)
-# Same digest-pinning approach as above — resolve with:
-#   docker pull dhi.io/node:26-debian && docker inspect --format='{{index .RepoDigests 0}}' dhi.io/node:26-debian
-FROM dhi.io/node:26-debian
+FROM dhi.io/node:26-dev AS prod-deps
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install --only=production vite@5.4.11 && \
+    npm cache clean --force && \
+    find node_modules -type f -name "*.md" -delete
+
+
+FROM dhi.io/node:26
 
 WORKDIR /app
 
 # Copy built files from builder
 COPY --from=build /app/dist ./dist
 
-# Copy pruned (production-only) node_modules from builder.
-# NOTE: if vite is a devDependency, `npm prune --omit=dev` will remove it,
-# and `vite preview` below will fail. Either move vite to "dependencies",
-# or better, serve /dist with a lightweight static server instead of
-# `vite preview` (which isn't meant for production use anyway).
-COPY --from=build /app/node_modules ./node_modules
-
+# Copy production node_modules
+COPY --from=prod-deps /app/node_modules ./node_modules
 COPY vite.preview.config.js ./vite.config.js
 
 EXPOSE 4173
