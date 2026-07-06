@@ -1,5 +1,4 @@
-
-FROM dhi.io/node@sha256:0f52e8901797d837f6586d7ece8a524f68ee07f536f6bf130ec5dd0d864013dd AS build
+FROM dhi.io/node:26-alpine AS build
 
 WORKDIR /app
 
@@ -20,8 +19,8 @@ RUN npm run build
 
 # Stage 2 — distroless runtime (minimal, secure)
 # Same digest-pinning approach as above — resolve with:
-#   docker pull dhi.io/node:26 && docker inspect --format='{{index .RepoDigests 0}}' dhi.io/node:26
-FROM dhi.io/node@sha256:08c6347fc51b41180f06c90a2496320c0da495a7768a4cf5403ed541dcaf93dd
+#   docker pull dhi.io/node:26-alpine && docker inspect --format='{{index .RepoDigests 0}}' dhi.io/node:26-alpine
+FROM dhi.io/node:26-alpine
 
 WORKDIR /app
 
