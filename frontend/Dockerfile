@@ -1,4 +1,4 @@
-FROM dhi.io/node:26-alpine AS build
+FROM dhi.io/node:26-debian AS build
 
 WORKDIR /app
 
@@ -19,8 +19,8 @@ RUN npm run build
 
 # Stage 2 — distroless runtime (minimal, secure)
 # Same digest-pinning approach as above — resolve with:
-#   docker pull dhi.io/node:26-alpine && docker inspect --format='{{index .RepoDigests 0}}' dhi.io/node:26-alpine
-FROM dhi.io/node:26-alpine
+#   docker pull dhi.io/node:26-debian && docker inspect --format='{{index .RepoDigests 0}}' dhi.io/node:26-debian
+FROM dhi.io/node:26-debian
 
 WORKDIR /app
 
