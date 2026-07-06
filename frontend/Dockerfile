@@ -1,6 +1,10 @@
-
 # Stage 1 — build the app
-FROM dhi.io/node:26-dev AS build
+# Pin to a digest instead of a floating tag so upgrades are deliberate and
+# auditable. Get the current digest with:
+#   docker pull dhi.io/node:26-dev && docker inspect --format='{{index .RepoDigests 0}}' dhi.io/node:26-dev
+# Track new digests as Docker patches them at:
+#   https://github.com/docker-hardened-images/log
+FROM dhi.io/node@sha256:0f52e8901797d837f6586d7ece8a524f68ee07f536f6bf130ec5dd0d864013dd AS build
 
 WORKDIR /app
 
@@ -15,15 +19,26 @@ COPY . .
 
 RUN npm run build
 
+# Prune to production-only dependencies before copying node_modules into the
+# runtime stage (vite itself is only needed here if you run `vite preview`
+# in prod — see stage 2 note below).
+RUN npm prune --omit=dev --legacy-peer-deps
+
 # Stage 2 — distroless runtime (minimal, secure)
-FROM dhi.io/node:26
+# Same digest-pinning approach as above — resolve with:
+#   docker pull dhi.io/node:26 && docker inspect --format='{{index .RepoDigests 0}}' dhi.io/node:26
+FROM dhi.io/node@sha256:08c6347fc51b41180f06c90a2496320c0da495a7768a4cf5403ed541dcaf93dd
 
 WORKDIR /app
 
 # Copy built files from builder
 COPY --from=build /app/dist ./dist
 
-# Copy all node_modules from builder (includes vite)
+# Copy pruned (production-only) node_modules from builder.
+# NOTE: if vite is a devDependency, `npm prune --omit=dev` will remove it,
+# and `vite preview` below will fail. Either move vite to "dependencies",
+# or better, serve /dist with a lightweight static server instead of
+# `vite preview` (which isn't meant for production use anyway).
 COPY --from=build /app/node_modules ./node_modules
 
 COPY vite.preview.config.js ./vite.config.js
