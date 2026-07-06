@@ -1,9 +1,4 @@
-# Stage 1 — build the app
-# Pin to a digest instead of a floating tag so upgrades are deliberate and
-# auditable. Get the current digest with:
-#   docker pull dhi.io/node:26-dev && docker inspect --format='{{index .RepoDigests 0}}' dhi.io/node:26-dev
-# Track new digests as Docker patches them at:
-#   https://github.com/docker-hardened-images/log
+
 FROM dhi.io/node@sha256:0f52e8901797d837f6586d7ece8a524f68ee07f536f6bf130ec5dd0d864013dd AS build
 
 WORKDIR /app
@@ -22,7 +17,6 @@ RUN npm run build
 # Prune to production-only dependencies before copying node_modules into the
 # runtime stage (vite itself is only needed here if you run `vite preview`
 # in prod — see stage 2 note below).
-RUN npm prune --omit=dev --legacy-peer-deps
 
 # Stage 2 — distroless runtime (minimal, secure)
 # Same digest-pinning approach as above — resolve with:
