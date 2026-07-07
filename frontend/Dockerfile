@@ -6,6 +6,7 @@ COPY package*.json ./
 
 RUN npm install --legacy-peer-deps
 
+
 COPY . .
 
 RUN npm run build
@@ -17,7 +18,8 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install --only=production vite@5.4.11 && \
+RUN npm install && \
+    npm prune --production && \
     npm cache clean --force && \
     find node_modules -type f -name "*.md" -delete
 
