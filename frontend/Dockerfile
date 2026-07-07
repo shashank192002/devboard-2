@@ -19,7 +19,7 @@ COPY package*.json ./
 
 RUN npm install --only=production vite@5.4.11 && \
     npm cache clean --force && \
-    find node_modules -type f -name "*.md" -delete
+    find node_modules -type f -name "*.md" -delete  
 
 
 FROM dhi.io/node:26
