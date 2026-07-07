@@ -46,4 +46,4 @@ jobs:
   deploy:
     needs: [push-to-docker]
     uses: ./.github/workflows/deploy.yml
-    secrets: inherit  
+    secrets: inherit    
