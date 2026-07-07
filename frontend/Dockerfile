@@ -6,24 +6,14 @@ COPY package*.json ./
 
 RUN npm install --legacy-peer-deps
 
+# Install vite explicitly if not already in package.json
+RUN npm list vite > /dev/null 2>&1 || npm install --no-save vite@5.4.11
 
 COPY . .
 
 RUN npm run build
 
-
-FROM dhi.io/node:26-dev AS prod-deps
-
-WORKDIR /app
-
-COPY package*.json ./
-
-RUN npm install && \
-    npm prune --production && \
-    npm cache clean --force && \
-    find node_modules -type f -name "*.md" -delete  
-
-
+# Stage 2 — distroless runtime (minimal, secure)
 FROM dhi.io/node:26
 
 WORKDIR /app
@@ -31,8 +21,9 @@ WORKDIR /app
 # Copy built files from builder
 COPY --from=build /app/dist ./dist
 
-# Copy production node_modules
-COPY --from=prod-deps /app/node_modules ./node_modules
+# Copy all node_modules from builder (includes vite)
+COPY --from=build /app/node_modules ./node_modules
+
 COPY vite.preview.config.js ./vite.config.js
 
 EXPOSE 4173
