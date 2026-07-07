@@ -47,3 +47,9 @@ jobs:
     needs: [push-to-docker]
     uses: ./.github/workflows/deploy.yml
     secrets: inherit    
+
+
+  owasp:
+    needs: [deploy]
+    uses: ./.github/workflows/dast.yml
+    secrets: inherit
