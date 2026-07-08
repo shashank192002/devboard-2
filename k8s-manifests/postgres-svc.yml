@@ -4,6 +4,7 @@ metadata:
   name: postgres-service
   namespace: devboard
 spec:
+  clusterIP: None
   selector: 
     app: devboard-postgres
   ports:
