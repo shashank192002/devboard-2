@@ -1,0 +1,34 @@
+#Goal :- Push to Dockerhub 
+
+
+name: Docker Push
+
+on:
+  workflow_call:
+
+
+jobs:
+  frontend:
+      strategy:
+        fail-fast: false
+        matrix:
+          folders: ['backend','frontend']
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v7
+
+        - name: Docker Login
+          uses: docker/login-action@v4
+          with:
+            username: ${{ vars.DOCKERHUB_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
+        - name: Build and Push 
+          uses: docker/build-push-action@v7
+          with:
+            context: ./${{ matrix.folders }}
+            push: true
+            tags: ${{ vars.DOCKERHUB_USERNAME }}/devboard-${{ matrix.folders }}:latest     
+
+        
+
