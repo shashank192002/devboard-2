@@ -46,6 +46,8 @@ jobs:
     if: github.event_name != 'pull_request'
     needs: [prep, code-quality, code-tests, docker-checks, secret-scanning]
     uses: ./.github/workflows/docker-push.yml
+    with:
+      image_tag: ${{ needs.prep.outputs.tag }}
     secrets: inherit
 
   # ---- GitOps: write the new tag into the manifests and commit back ----
@@ -56,4 +58,6 @@ jobs:
     permissions:
       contents: write
     uses: ./.github/workflows/gitops-bump.yml
+    with:
+      image_tag: ${{ needs.prep.outputs.tag }}
 
