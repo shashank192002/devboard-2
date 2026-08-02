@@ -17,7 +17,7 @@ on:
       - '.github/workflows/**'
       - 'sonar-project.properties'
   pull_request:
-    branches: [gitops]
+    branches: [kubernetes]
   workflow_dispatch:
 
 jobs:
